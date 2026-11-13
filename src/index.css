@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Manrope", sans-serif;
+  --font-sans: "DM Sans", sans-serif;
+  --color-forest: #123C2D;
+  --color-forest-hover: #0D2D21;
+  --color-lime-brand: #D4F86B;
+  --color-lime-hover: #C6EE50;
+  --color-canvas: #F8F9F5;
+  --color-ink: #13211B;
+  --color-muted: #4C5B54;
+  --color-hairline: #E2E6DC;
+}
+
+@layer base {
+  html {
+    background-color: #F8F9F5;
+    color: #13211B;
+    font-family: "DM Sans", sans-serif;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Manrope", sans-serif;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

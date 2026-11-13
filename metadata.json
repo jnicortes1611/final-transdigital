@@ -1,0 +1,6 @@
+{
+  "name": "CanchaYa",
+  "description": "Prototipo de reservas de canchas privadas de fútbol y pádel en Medellín y municipios cercanos, con disponibilidad en hora de Colombia y calculadora para dividir el costo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
