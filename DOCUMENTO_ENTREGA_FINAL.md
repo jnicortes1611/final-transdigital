@@ -1,7 +1,7 @@
 # Documento de Entrega Final — Diseño y Transformación Organizacional
 
 **Producto Digital:** CanchaYa  
-**Enlace de la aplicación web funcional:** https://ais-pre-plov3d23iax7lvpcfsdmdf-116308288991.us-west1.run.app  
+**Enlace de la aplicación web funcional:** https://canchaya.ai.studio
 
 ---
 
