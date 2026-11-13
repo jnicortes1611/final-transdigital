@@ -128,4 +128,4 @@ npm run build
 Consulta el archivo [`DOCUMENTO_ENTREGA_FINAL.md`](./DOCUMENTO_ENTREGA_FINAL.md) para copiar directamente a Word o exportar a PDF la descripción del producto, las 5 funcionalidades detalladas (qué hacen y cómo se ven) y el prompt completo utilizado para su desarrollo.
 
 ### Enlace de la aplicación publicada
-- Aplicación web funcional: https://ais-pre-plov3d23iax7lvpcfsdmdf-116308288991.us-west1.run.app
+- Aplicación web funcional: https://canchaya.ai.studio
