@@ -1,4 +1,10 @@
-import { Reservation, SessionUser, UserAccount } from '../types';
+import {
+  PaymentMethod,
+  Reservation,
+  SessionUser,
+  UserAccount,
+  VenuePaymentAccount,
+} from '../types';
 import { hashPasswordWithSalt, verifyPasswordWithSalt } from './authCrypto';
 import {
   FIRST_START_HOUR,
@@ -49,13 +55,26 @@ export function saveStoredSession(session: SessionUser | null): void {
   }
 }
 
+function normalizeStoredReservation(raw: Reservation): Reservation {
+  return {
+    ...raw,
+    paymentMethod: raw.paymentMethod ?? 'efectivo_sede',
+    paymentStatus:
+      raw.paymentStatus ??
+      (raw.cancelledAt ? 'Anulada' : 'Pendiente en sede'),
+    paymentAccountSummary: raw.paymentAccountSummary ?? 'Recepción de la sede',
+    paymentReference: raw.paymentReference ?? null,
+  };
+}
+
 export function getStoredReservations(): Reservation[] {
   if (typeof window === 'undefined') return [];
   const parsed = safeParseJSON<unknown>(
     window.localStorage.getItem(RESERVATIONS_STORAGE_KEY),
     []
   );
-  return Array.isArray(parsed) ? (parsed as Reservation[]) : [];
+  if (!Array.isArray(parsed)) return [];
+  return (parsed as Reservation[]).map(normalizeStoredReservation);
 }
 
 function saveStoredReservations(reservations: Reservation[]): void {
@@ -160,6 +179,9 @@ export function createReservationAtomic(params: {
   startHour: number;
   totalPrice: number;
   defaultPlayers: number;
+  paymentMethod: PaymentMethod;
+  paymentAccount: VenuePaymentAccount;
+  paymentReference?: string | null;
 }): ReservationResult {
   if (!isDateInAllowedRange(params.date)) {
     return {
@@ -204,6 +226,16 @@ export function createReservationAtomic(params: {
     };
   }
 
+  const isTransfer = params.paymentMethod === 'transferencia';
+  const cleanRef = params.paymentReference?.trim() || null;
+  const generatedRef = isTransfer
+    ? cleanRef ?? `TRF-${Math.floor(100000 + Math.random() * 900000)}`
+    : null;
+
+  const accountSummary = isTransfer
+    ? `${params.paymentAccount.legalName} · ${params.paymentAccount.bank} (${params.paymentAccount.accountNumber})`
+    : `Pago en recepción · ${params.paymentAccount.legalName}`;
+
   const newReservation: Reservation = {
     id: generateId('res'),
     courtId: params.courtId,
@@ -214,6 +246,10 @@ export function createReservationAtomic(params: {
     endHour: params.startHour + 1,
     totalPrice: params.totalPrice,
     splitPlayers: Math.max(1, Math.floor(params.defaultPlayers)),
+    paymentMethod: params.paymentMethod,
+    paymentStatus: isTransfer ? 'Pagada (simulado)' : 'Pendiente en sede',
+    paymentAccountSummary: accountSummary,
+    paymentReference: generatedRef,
     cancelledAt: null,
     createdAt: new Date().toISOString(),
   };
@@ -259,6 +295,7 @@ export function cancelReservationAtomic(reservationId: string, userId: string): 
   const updatedReservation: Reservation = {
     ...target,
     cancelledAt: new Date().toISOString(),
+    paymentStatus: 'Anulada',
   };
 
   const updated = [...latest];

@@ -2,12 +2,16 @@ import React, { useEffect, useState } from 'react';
 import {
   AlertCircle,
   ArrowLeft,
+  Banknote,
+  Building2,
   Calendar,
+  Check,
   CheckCircle2,
   Clock,
+  Copy,
   MapPin,
 } from 'lucide-react';
-import { Court, Reservation, SessionUser } from '../types';
+import { Court, PaymentMethod, Reservation, SessionUser } from '../types';
 import {
   HOUR_SLOTS,
   formatCOP,
@@ -28,6 +32,8 @@ interface CourtDetailViewProps {
     court: Court;
     date: string;
     startHour: number;
+    paymentMethod: PaymentMethod;
+    paymentReference?: string | null;
   }) => { ok: boolean; error?: string; reservation?: Reservation };
   onGoToReservations: () => void;
 }
@@ -45,6 +51,9 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
   const allowedDates = getAllowedDates(nowTick);
   const [selectedDate, setSelectedDate] = useState<string>(() => allowedDates[0].dateStr);
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('efectivo_sede');
+  const [transferReference, setTransferReference] = useState<string>('');
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [confirmedReservation, setConfirmedReservation] = useState<Reservation | null>(null);
   const [imageError, setImageError] = useState(false);
@@ -56,6 +65,15 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
     }, 20000);
     return () => window.clearInterval(interval);
   }, []);
+
+  // Reset payment fields when switching court
+  useEffect(() => {
+    setPaymentMethod('efectivo_sede');
+    setTransferReference('');
+    setCopiedField(null);
+    setBookingError(null);
+    setConfirmedReservation(null);
+  }, [court.id]);
 
   // Ensure selected date remains valid if day rolls over
   useEffect(() => {
@@ -110,6 +128,18 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
     setConfirmedReservation(null);
   };
 
+  const handleCopyText = async (fieldId: string, value: string) => {
+    try {
+      await navigator.clipboard?.writeText(value);
+      setCopiedField(fieldId);
+      window.setTimeout(() => {
+        setCopiedField((curr) => (curr === fieldId ? null : curr));
+      }, 2000);
+    } catch {
+      setCopiedField(null);
+    }
+  };
+
   const handleConfirmClick = () => {
     setBookingError(null);
 
@@ -129,6 +159,8 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
       court,
       date: selectedDate,
       startHour: selectedHour,
+      paymentMethod,
+      paymentReference: paymentMethod === 'transferencia' ? transferReference : null,
     });
 
     if (!result.ok) {
@@ -141,6 +173,7 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
     if (result.reservation) {
       setConfirmedReservation(result.reservation);
       setSelectedHour(null);
+      setTransferReference('');
     }
   };
 
@@ -217,14 +250,22 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
               </span>
             </div>
 
+            <div className="mt-4 pt-4 border-t border-[#E2E6DC] text-xs text-[#4C5B54] space-y-1">
+              <p className="font-semibold text-[#13211B]">Cuenta recaudadora de la sede (demo)</p>
+              <p>
+                {court.paymentAccount.legalName} · {court.paymentAccount.bank} (
+                {court.paymentAccount.accountNumber})
+              </p>
+            </div>
+
             <p className="mt-4 p-3.5 rounded-xl bg-[#F8F9F5] border border-[#E2E6DC] text-xs text-[#4C5B54] leading-relaxed">
-              Escenario privado ficticio (no pertenece al INDER). Prototipo sin pagos reales; la
-              disponibilidad se comparte entre cuentas dentro de este mismo navegador.
+              Escenario privado ficticio (no pertenece al INDER). Prototipo sin débitos bancarios
+              reales; la disponibilidad se comparte entre cuentas dentro de este mismo navegador.
             </p>
           </div>
         </div>
 
-        {/* Right Column: Date & Hourly Availability */}
+        {/* Right Column: Date, Hourly Availability & Payment Gateway */}
         <div className="lg:col-span-7 bg-white border border-[#E2E6DC] rounded-2xl p-5 sm:p-7">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-[#E2E6DC]">
             <div>
@@ -401,7 +442,7 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
                 <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-[#123C2D]" aria-hidden="true" />
                 <div className="flex-1">
                   <h3 className="font-['Manrope'] text-base font-extrabold">
-                    Reserva confirmada
+                    Reserva confirmada · {confirmedReservation.paymentStatus}
                   </h3>
                   <p className="mt-1 text-sm text-[#1F4A3A]">
                     {court.name} · {formatDateLongES(confirmedReservation.date)} ·{' '}
@@ -413,6 +454,15 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
                       {formatCOP(confirmedReservation.totalPrice)}
                     </span>
                     .
+                  </p>
+                  <p className="mt-1 text-xs text-[#1F4A3A]">
+                    {confirmedReservation.paymentMethod === 'transferencia'
+                      ? `Transferencia simulada hacia ${confirmedReservation.paymentAccountSummary}${
+                          confirmedReservation.paymentReference
+                            ? ` · Ref: ${confirmedReservation.paymentReference}`
+                            : ''
+                        }.`
+                      : `Método elegido: pago en efectivo al llegar a ${court.name}.`}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     <button
@@ -428,11 +478,11 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
             </div>
           )}
 
-          {/* Booking Summary */}
+          {/* Booking Summary + Simulated Payment Gateway */}
           {selectedHour !== null && (
             <div className="mt-6 p-5 rounded-2xl bg-[#F8F9F5] border border-[#CFD7C9]">
               <h3 className="font-['Manrope'] text-base font-extrabold text-[#13211B]">
-                Resumen de tu reserva
+                Resumen y método de pago
               </h3>
 
               <dl className="mt-3 space-y-2 text-sm">
@@ -455,16 +505,193 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
                   </dd>
                 </div>
                 <div className="pt-2 border-t border-[#E2E6DC] flex justify-between gap-4 items-baseline">
-                  <dt className="font-bold text-[#13211B]">Total estimado</dt>
+                  <dt className="font-bold text-[#13211B]">Total de la cancha</dt>
                   <dd className="font-['Manrope'] text-xl font-extrabold text-[#123C2D] tabular-nums">
                     {formatCOP(court.pricePerHour)}
                   </dd>
                 </div>
               </dl>
 
+              {/* Two-option Simulated Payment Gateway */}
+              <div className="mt-5 pt-4 border-t border-[#E2E6DC]">
+                <span
+                  id="payment-method-label"
+                  className="block text-sm font-bold text-[#13211B] mb-2.5"
+                >
+                  Elige cómo pagar esta reserva
+                </span>
+
+                <div
+                  role="radiogroup"
+                  aria-labelledby="payment-method-label"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                >
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={paymentMethod === 'efectivo_sede'}
+                    onClick={() => setPaymentMethod('efectivo_sede')}
+                    className={`min-h-[68px] p-3.5 rounded-xl border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123C2D] ${
+                      paymentMethod === 'efectivo_sede'
+                        ? 'bg-[#123C2D] border-[#123C2D] text-white'
+                        : 'bg-white border-[#CFD7C9] text-[#13211B] hover:border-[#123C2D]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-bold text-sm">
+                      <Banknote
+                        className={`w-4 h-4 shrink-0 ${
+                          paymentMethod === 'efectivo_sede' ? 'text-[#D4F86B]' : 'text-[#123C2D]'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span>Pago en efectivo en el lugar</span>
+                    </div>
+                    <p
+                      className={`mt-1 text-xs ${
+                        paymentMethod === 'efectivo_sede' ? 'text-[#D9E5DF]' : 'text-[#4C5B54]'
+                      }`}
+                    >
+                      Pagas en la recepción de la sede antes de jugar.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={paymentMethod === 'transferencia'}
+                    onClick={() => setPaymentMethod('transferencia')}
+                    className={`min-h-[68px] p-3.5 rounded-xl border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123C2D] ${
+                      paymentMethod === 'transferencia'
+                        ? 'bg-[#123C2D] border-[#123C2D] text-white'
+                        : 'bg-white border-[#CFD7C9] text-[#13211B] hover:border-[#123C2D]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-bold text-sm">
+                      <Building2
+                        className={`w-4 h-4 shrink-0 ${
+                          paymentMethod === 'transferencia' ? 'text-[#D4F86B]' : 'text-[#123C2D]'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span>Pagar ya mediante transferencia</span>
+                    </div>
+                    <p
+                      className={`mt-1 text-xs ${
+                        paymentMethod === 'transferencia' ? 'text-[#D9E5DF]' : 'text-[#4C5B54]'
+                      }`}
+                    >
+                      Cuenta directa de {court.name} ({court.paymentAccount.bank}).
+                    </p>
+                  </button>
+                </div>
+
+                {/* Venue receiving account details when transfer is selected */}
+                {paymentMethod === 'transferencia' && (
+                  <div className="mt-3 p-4 rounded-xl bg-white border border-[#CFD7C9] space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#E2E6DC]">
+                      <span className="text-xs font-bold text-[#123C2D]">
+                        Datos de transferencia · {court.paymentAccount.legalName}
+                      </span>
+                      <span className="text-xs text-[#4C5B54] tabular-nums">
+                        NIT {court.paymentAccount.nit}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="block text-[#4C5B54]">Entidad y tipo de cuenta</span>
+                        <span className="font-semibold text-[#13211B]">
+                          {court.paymentAccount.bank} · {court.paymentAccount.accountType}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span className="block text-[#4C5B54]">Monto exacto</span>
+                        <span className="font-bold text-[#123C2D] tabular-nums">
+                          {formatCOP(court.pricePerHour)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 bg-[#F8F9F5] px-3 py-2 rounded-lg border border-[#E2E6DC]">
+                        <div className="min-w-0">
+                          <span className="block text-[11px] text-[#4C5B54]">Número de cuenta</span>
+                          <span className="font-bold text-[#13211B] tabular-nums truncate block">
+                            {court.paymentAccount.accountNumber}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleCopyText('acc', court.paymentAccount.accountNumber)
+                          }
+                          className="min-h-[36px] px-2.5 py-1 inline-flex items-center gap-1 text-xs font-semibold text-[#123C2D] bg-white hover:bg-[#EAEFE4] border border-[#CFD7C9] rounded-lg shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123C2D]"
+                        >
+                          {copiedField === 'acc' ? (
+                            <>
+                              <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                              <span>Copiado</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+                              <span>Copiar</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 bg-[#F8F9F5] px-3 py-2 rounded-lg border border-[#E2E6DC]">
+                        <div className="min-w-0">
+                          <span className="block text-[11px] text-[#4C5B54]">Llave / Nequi</span>
+                          <span className="font-bold text-[#13211B] truncate block">
+                            {court.paymentAccount.transferKey}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleCopyText('key', court.paymentAccount.transferKey)
+                          }
+                          className="min-h-[36px] px-2.5 py-1 inline-flex items-center gap-1 text-xs font-semibold text-[#123C2D] bg-white hover:bg-[#EAEFE4] border border-[#CFD7C9] rounded-lg shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123C2D]"
+                        >
+                          {copiedField === 'key' ? (
+                            <>
+                              <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                              <span>Copiado</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+                              <span>Copiar</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="transfer-ref-input"
+                        className="block text-xs font-semibold text-[#13211B] mb-1"
+                      >
+                        Número de comprobante simulado (opcional)
+                      </label>
+                      <input
+                        id="transfer-ref-input"
+                        type="text"
+                        value={transferReference}
+                        onChange={(e) => setTransferReference(e.target.value)}
+                        placeholder="Ej. TRF-90421 (si lo dejas vacío generamos uno de prueba)"
+                        className="w-full min-h-[42px] px-3 py-2 text-xs sm:text-sm text-[#13211B] bg-[#F8F9F5] border border-[#CFD7C9] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#123C2D]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <p className="mt-3 text-xs text-[#4C5B54]">
-                Prototipo sin pagos reales. Al confirmar, verificamos nuevamente que la franja siga
-                disponible en este navegador.
+                Pasarela simulada de prototipo: las cuentas mostradas son ficticias y no se ejecutan
+                cobros bancarios reales. Al confirmar, revalidamos que la franja siga disponible.
               </p>
 
               <div className="mt-4">
@@ -473,7 +700,11 @@ export const CourtDetailView: React.FC<CourtDetailViewProps> = ({
                   onClick={handleConfirmClick}
                   className="w-full min-h-[48px] px-5 py-3 text-sm sm:text-base font-bold text-[#123C2D] bg-[#D4F86B] hover:bg-[#C6EE50] rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123C2D] focus-visible:ring-offset-2"
                 >
-                  {sessionUser ? 'Confirmar reserva' : 'Inicia sesión para confirmar reserva'}
+                  {!sessionUser
+                    ? 'Inicia sesión para confirmar reserva'
+                    : paymentMethod === 'transferencia'
+                    ? 'Confirmar reserva y registrar transferencia'
+                    : 'Confirmar reserva (pago en el lugar)'}
                 </button>
               </div>
             </div>

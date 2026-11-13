@@ -2,6 +2,15 @@ export type Modality = 'Fútbol 6' | 'Fútbol 7' | 'Fútbol 8' | 'Pádel';
 
 export type Municipality = 'Medellín' | 'Bello' | 'Envigado' | 'Itagüí' | 'Sabaneta';
 
+export interface VenuePaymentAccount {
+  legalName: string;
+  nit: string;
+  bank: string;
+  accountType: string;
+  accountNumber: string;
+  transferKey: string;
+}
+
 export interface Court {
   id: string;
   name: string;
@@ -14,6 +23,7 @@ export interface Court {
   defaultPlayers: number;
   image: string;
   surface: string;
+  paymentAccount: VenuePaymentAccount;
 }
 
 export interface UserAccount {
@@ -32,6 +42,10 @@ export interface SessionUser {
 
 export type ReservationStatus = 'Confirmada' | 'En curso' | 'Finalizada' | 'Cancelada';
 
+export type PaymentMethod = 'efectivo_sede' | 'transferencia';
+
+export type PaymentStatus = 'Pendiente en sede' | 'Pagada (simulado)' | 'Anulada';
+
 export interface Reservation {
   id: string;
   courtId: string;
@@ -42,6 +56,10 @@ export interface Reservation {
   endHour: number; // startHour + 1 (7..23)
   totalPrice: number;
   splitPlayers: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  paymentAccountSummary: string;
+  paymentReference: string | null;
   cancelledAt: string | null;
   createdAt: string;
 }

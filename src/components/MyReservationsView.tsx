@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   AlertCircle,
+  Banknote,
+  Building2,
   Calendar,
   CheckCircle2,
   Clock,
@@ -264,6 +266,33 @@ export const MyReservationsView: React.FC<MyReservationsViewProps> = ({
                         <Clock className="w-4 h-4 text-[#123C2D]" aria-hidden="true" />
                         <span>{formatHourRange(reservation.startHour)} (Colombia)</span>
                       </span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#4C5B54]">
+                      <span className="inline-flex items-center gap-1.5 font-semibold text-[#13211B]">
+                        {reservation.paymentMethod === 'transferencia' ? (
+                          <Building2 className="w-3.5 h-3.5 text-[#123C2D]" aria-hidden="true" />
+                        ) : (
+                          <Banknote className="w-3.5 h-3.5 text-[#123C2D]" aria-hidden="true" />
+                        )}
+                        <span>
+                          {reservation.paymentMethod === 'transferencia'
+                            ? 'Transferencia a la sede'
+                            : 'Pago en efectivo en el lugar'}
+                        </span>
+                      </span>
+                      <span aria-hidden="true">·</span>
+                      <span className="font-semibold text-[#123C2D]">
+                        {reservation.paymentStatus}
+                      </span>
+                      <span aria-hidden="true">·</span>
+                      <span>{reservation.paymentAccountSummary}</span>
+                      {reservation.paymentReference && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span className="tabular-nums">Ref: {reservation.paymentReference}</span>
+                        </>
+                      )}
                     </div>
                   </div>
 

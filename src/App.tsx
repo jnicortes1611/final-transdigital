@@ -10,7 +10,7 @@ import { AppView, Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { MyReservationsView } from './components/MyReservationsView';
 import { PRELOADED_COURTS } from './data/courts';
-import { Court, Modality, Municipality, Reservation, SessionUser } from './types';
+import { Court, Modality, Municipality, PaymentMethod, Reservation, SessionUser } from './types';
 import { getReservationStatus } from './utils/colombiaTime';
 import {
   RESERVATIONS_STORAGE_KEY,
@@ -107,7 +107,13 @@ export default function App() {
   }, []);
 
   const handleConfirmBooking = useCallback(
-    (params: { court: Court; date: string; startHour: number }) => {
+    (params: {
+      court: Court;
+      date: string;
+      startHour: number;
+      paymentMethod: PaymentMethod;
+      paymentReference?: string | null;
+    }) => {
       if (!sessionUser) {
         return {
           ok: false,
@@ -123,6 +129,9 @@ export default function App() {
         startHour: params.startHour,
         totalPrice: params.court.pricePerHour,
         defaultPlayers: params.court.defaultPlayers,
+        paymentMethod: params.paymentMethod,
+        paymentAccount: params.court.paymentAccount,
+        paymentReference: params.paymentReference,
       });
 
       if (result.reservations) {

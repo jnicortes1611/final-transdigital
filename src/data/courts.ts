@@ -31,6 +31,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 12,
     image: futbol6Img,
     surface: 'Grama sintética 45 mm',
+    paymentAccount: {
+      legalName: 'La 10 Arena Poblado S.A.S.',
+      nit: '901.340.112-4',
+      bank: 'Bancolombia',
+      accountType: 'Cuenta de Ahorros',
+      accountNumber: '245-000841-19',
+      transferKey: 'Llave Bre-B: @LA10POBLADO',
+    },
   },
   {
     id: 'cancha-02',
@@ -44,6 +52,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 14,
     image: futbol7Img,
     surface: 'Grama sintética Pro',
+    paymentAccount: {
+      legalName: 'Conquistadores Turf Club S.A.S.',
+      nit: '900.892.415-1',
+      bank: 'Davivienda',
+      accountType: 'Cuenta Corriente',
+      accountNumber: '0048-6900-3312',
+      transferKey: 'Nequi Comercio: 300 000 1002',
+    },
   },
   {
     id: 'cancha-03',
@@ -57,6 +73,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 4,
     image: padelPanoramicaImg,
     surface: 'Césped texturizado WPT',
+    paymentAccount: {
+      legalName: 'Mirador Pádel Antioquia S.A.S.',
+      nit: '901.615.774-8',
+      bank: 'Bancolombia',
+      accountType: 'Cuenta Corriente',
+      accountNumber: '612-004920-05',
+      transferKey: 'Llave Bre-B: @MIRADORPADEL',
+    },
   },
   {
     id: 'cancha-04',
@@ -70,6 +94,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 12,
     image: futbol6Img,
     surface: 'Grama sintética 40 mm',
+    paymentAccount: {
+      legalName: 'Complejo Norte 6 Bello S.A.S.',
+      nit: '901.104.582-2',
+      bank: 'Nequi Negocios',
+      accountType: 'Cuenta Digital Comercio',
+      accountNumber: '311-000-4004',
+      transferKey: 'Llave Bre-B: @NORTE6NIQUIA',
+    },
   },
   {
     id: 'cancha-05',
@@ -83,6 +115,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 4,
     image: padelCubiertaImg,
     surface: 'Césped azul monofilamento',
+    paymentAccount: {
+      legalName: 'Cerro Claro Deportes S.A.S.',
+      nit: '901.519.208-6',
+      bank: 'Banco de Bogotá',
+      accountType: 'Cuenta de Ahorros',
+      accountNumber: '342-187450-9',
+      transferKey: 'Llave Bre-B: @CERROCLAROPADEL',
+    },
   },
   {
     id: 'cancha-06',
@@ -96,6 +136,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 14,
     image: futbol7Img,
     surface: 'Grama sintética 50 mm',
+    paymentAccount: {
+      legalName: 'Territorio 7 Envigado S.A.S.',
+      nit: '900.745.931-0',
+      bank: 'Bancolombia',
+      accountType: 'Cuenta de Ahorros',
+      accountNumber: '309-001274-88',
+      transferKey: 'Nequi Comercio: 300 000 1006',
+    },
   },
   {
     id: 'cancha-07',
@@ -109,6 +157,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 16,
     image: futbol8Img,
     surface: 'Grama sintética 55 mm',
+    paymentAccount: {
+      legalName: 'Distrito Deportivo San Marcos S.A.S.',
+      nit: '901.228.604-7',
+      bank: 'BBVA Colombia',
+      accountType: 'Cuenta Corriente',
+      accountNumber: '0013-0294-0100045812',
+      transferKey: 'Llave Bre-B: @DISTRITO8SM',
+    },
   },
   {
     id: 'cancha-08',
@@ -122,6 +178,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 12,
     image: futbol6Img,
     surface: 'Grama sintética 45 mm',
+    paymentAccount: {
+      legalName: 'Punta Sur Escenarios S.A.S.',
+      nit: '901.084.319-5',
+      bank: 'Bancolombia',
+      accountType: 'Cuenta de Ahorros',
+      accountNumber: '481-009512-30',
+      transferKey: 'Nequi Comercio: 300 000 1008',
+    },
   },
   {
     id: 'cancha-09',
@@ -135,6 +199,14 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 16,
     image: futbol8Img,
     surface: 'Grama sintética 50 mm',
+    paymentAccount: {
+      legalName: 'Arena Central Sur S.A.S.',
+      nit: '900.918.742-3',
+      bank: 'Davivienda',
+      accountType: 'Cuenta de Ahorros',
+      accountNumber: '0042-7001-9843',
+      transferKey: 'Llave Bre-B: @ARENACENTRAL8',
+    },
   },
   {
     id: 'cancha-10',
@@ -148,5 +220,13 @@ export const PRELOADED_COURTS: Court[] = [
     defaultPlayers: 4,
     image: padelCubiertaImg,
     surface: 'Césped profesional WPT',
+    paymentAccount: {
+      legalName: 'Sabaneta Pádel Club S.A.S.',
+      nit: '901.732.091-9',
+      bank: 'Bancolombia',
+      accountType: 'Cuenta de Ahorros',
+      accountNumber: '519-003817-64',
+      transferKey: 'Llave Bre-B: @SABANETAPADEL',
+    },
   },
 ];
